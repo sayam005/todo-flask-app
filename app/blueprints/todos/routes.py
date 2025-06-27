@@ -159,10 +159,72 @@ def complete_todo(todo_id):
         flash('You can only modify your own tasks.', 'danger')
         return redirect(url_for('todos.dashboard'))
     
+    # Toggle completion status
     todo.completed = not todo.completed
+    
+    if todo.completed:
+        # Task completed - update stats and check achievements
+        from app.models import User
+        from app.blueprints.achievements.services import AchievementService, RankService, StreakService
+        
+        user = User.query.get(session['user_id'])
+        stats = user.get_or_create_stats()
+        
+        # Update task completion count
+        stats.total_completed_tasks += 1
+        
+        # Update streak
+        streak_updated, streak_message = StreakService.update_streak(stats, completed_task_today=True)
+        
+        # Update rank points (10 points per completed task + streak bonus)
+        points_earned = 10
+        if stats.current_streak > 1:
+            streak_bonus = min(stats.current_streak * 2, 50)  # Max 50 bonus points
+            points_earned += streak_bonus
+            
+        old_rank = stats.current_rank
+        stats.rank_points += points_earned
+        new_rank_info = RankService.get_rank_info(stats.rank_points)
+        stats.current_rank = new_rank_info['current']['name']
+        
+        # Check for new achievements
+        new_achievements = AchievementService.check_and_award_achievements(user.id)
+        
+        # Success messages
+        flash(f'🎉 Task "{todo.title}" completed! (+{points_earned} points)', 'success')
+        
+        if streak_updated and stats.current_streak > 1:
+            flash(f'🔥 {stats.current_streak} day streak! Bonus points earned!', 'success')
+        elif streak_updated and stats.current_streak == 1:
+            flash('🚀 New streak started! Keep it going!', 'success')
+        
+        if old_rank != stats.current_rank:
+            flash(f'🎊 RANK UP! You achieved {new_rank_info["current"]["emoji"]} {stats.current_rank}!', 'success')
+        
+        for achievement in new_achievements:
+            flash(f'🏆 Achievement Unlocked: {achievement.emoji} {achievement.name}!', 'success')
+        
+    else:
+        # Task uncompleted
+        from app.models import User
+        user = User.query.get(session['user_id'])
+        stats = user.get_or_create_stats()
+        
+        stats.total_completed_tasks = max(0, stats.total_completed_tasks - 1)
+        stats.rank_points = max(0, stats.rank_points - 10)
+        
+        new_rank_info = RankService.get_rank_info(stats.rank_points)
+        stats.current_rank = new_rank_info['current']['name']
+        
+        flash(f'Task "{todo.title}" marked as incomplete.', 'info')
+    
     db.session.commit()
-    flash('Task updated!', 'success')
     return redirect(url_for('todos.dashboard'))
+
+@todos.route('/toggle/<int:todo_id>')
+def toggle_todo(todo_id):
+    """Alias for complete_todo for template compatibility"""
+    return complete_todo(todo_id)
 
 @todos.route('/delete/<int:todo_id>')
 def delete_todo(todo_id):

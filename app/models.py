@@ -3,11 +3,26 @@ from datetime import datetime
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    
     # Add relationships
     todos = db.relationship('Todo', backref='author', lazy=True)
     task_lists = db.relationship('TaskList', backref='owner', lazy=True)
+    achievements = db.relationship('UserAchievement', backref='user', lazy=True)
+    
+    def get_or_create_stats(self):
+        """Get user stats, create if doesn't exist"""
+        from app.blueprints.achievements.models import UserStats
+        if not hasattr(self, 'stats') or not self.stats:
+            stats = UserStats.query.filter_by(user_id=self.id).first()
+            if not stats:
+                stats = UserStats(user_id=self.id)
+                db.session.add(stats)
+                db.session.commit()
+            return stats
+        return self.stats
     
     def __repr__(self):
         return f"User('{self.username}')"

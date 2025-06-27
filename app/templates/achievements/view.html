@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Achievements - Sayam's toDIY App{% endblock %}
+
+{% block content %}
+<div>
+    <h2>🏆 Your Achievements</h2>
+    <p style="color: #666;">Track your progress and unlock achievements!</p>
+    
+    <!-- Stats Overview -->
+    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+            <!-- Rank Section -->
+            <div style="text-align: center; flex: 1; min-width: 200px;">
+                <h3 style="margin: 0; color: {{ rank_info.current.color }};">
+                    {{ rank_info.current.emoji }} {{ rank_info.current.name }}
+                </h3>
+                <div style="background-color: #e9ecef; border-radius: 10px; height: 10px; margin: 10px 0;">
+                    <div style="background-color: {{ rank_info.current.color }}; height: 100%; border-radius: 10px; width: {{ rank_info.progress }}%;"></div>
+                </div>
+                <small style="color: #666;">
+                    {{ stats.rank_points }} points
+                    {% if rank_info.next %}
+                        | {{ rank_info.next.min_points - stats.rank_points }} to {{ rank_info.next.name }}
+                    {% else %}
+                        | MAX RANK! 👑
+                    {% endif %}
+                </small>
+            </div>
+            
+            <!-- Streak Section -->
+            <div style="text-align: center; flex: 1; min-width: 200px;">
+                <h3 style="margin: 0; color: {{ streak_status.color }};">
+                    🔥 {{ stats.current_streak }} Day Streak
+                </h3>
+                <p style="margin: 5px 0; color: {{ streak_status.color }};">{{ streak_status.message }}</p>
+                <small style="color: #666;">Longest: {{ stats.longest_streak }} days 🏆</small>
+            </div>
+            
+            <!-- Progress Section -->
+            <div style="text-align: center; flex: 1; min-width: 200px;">
+                <h3 style="margin: 0; color: #28a745;">📊 Progress</h3>
+                <p style="margin: 5px 0;">{{ total_earned }}/{{ total_available }} Achievements</p>
+                <p style="margin: 5px 0;">{{ stats.total_completed_tasks }} Tasks Completed</p>
+                <small style="color: #666;">{{ stats.total_lists_created }} Lists Created</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Achievement Categories -->
+    {% for category, achievements in achievements_by_category.items() %}
+    <div style="margin: 30px 0;">
+        <h3 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+            {% if category == 'task' %}📝 Task Achievements
+            {% elif category == 'streak' %}🔥 Streak Achievements  
+            {% elif category == 'list' %}📋 Organization Achievements
+            {% else %}🏆 {{ category.title() }} Achievements
+            {% endif %}
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px;">
+            <!-- Earned Achievements -->
+            {% for achievement in achievements.earned %}
+            <div style="border: 2px solid #28a745; background-color: #d4edda; padding: 15px; border-radius: 8px;">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 2em; margin-right: 10px;">{{ achievement.emoji }}</span>
+                    <div>
+                        <h4 style="margin: 0; color: #155724;">{{ achievement.name }}</h4>
+                        <small style="color: #155724;">✅ UNLOCKED</small>
+                    </div>
+                </div>
+                <p style="color: #155724; margin: 0;">{{ achievement.description }}</p>
+            </div>
+            {% endfor %}
+            
+            <!-- Locked Achievements -->
+            {% for achievement in achievements.locked %}
+            <div style="border: 2px solid #6c757d; background-color: #f8f9fa; padding: 15px; border-radius: 8px; opacity: 0.7;">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 2em; margin-right: 10px; filter: grayscale(100%);">{{ achievement.emoji }}</span>
+                    <div>
+                        <h4 style="margin: 0; color: #6c757d;">{{ achievement.name }}</h4>
+                        <small style="color: #6c757d;">
+                            🔒 
+                            {% if achievement.category == 'task' %}
+                                {{ stats.total_completed_tasks }}/{{ achievement.requirement }} tasks
+                            {% elif achievement.category == 'streak' %}
+                                {{ stats.current_streak }}/{{ achievement.requirement }} days
+                            {% elif achievement.category == 'list' %}
+                                {{ stats.total_lists_created }}/{{ achievement.requirement }} lists
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                <p style="color: #6c757d; margin: 0;">{{ achievement.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    
+    <!-- Quick Actions -->
+    <div style="text-align: center; margin: 40px 0; padding: 20px; background-color: #e7f3ff; border-radius: 8px;">
+        <h3 style="color: #0056b3;">🚀 Keep Going!</h3>
+        <p style="color: #0056b3; margin: 10px 0;">Complete more tasks to unlock achievements and climb the ranks!</p>
+        <div style="margin-top: 15px;">
+            <a href="{{ url_for('todos.add_todo') }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 5px;">
+                ➕ Add New Task
+            </a>
+            <a href="{{ url_for('lists.create_list') }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 5px;">
+                📋 Create List
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
