@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}My Lists - Sayam's toDIY App{% endblock %}
+
+{% block content %}
+<div>
+    <h2>📂 My Task Lists</h2>
+    <p style="color: #666;">Organize your tasks by creating custom lists with emojis!</p>
+    
+    <div style="margin: 20px 0; text-align: center;">
+        <a href="{{ url_for('lists.create_list') }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+            🆕 Create New List
+        </a>
+    </div>
+    
+    {% if lists %}
+        <div style="margin-top: 30px;">
+            {% for list in lists %}
+            <div style="border: 1px solid #ddd; margin-bottom: 15px; padding: 20px; border-radius: 5px; background-color: #fff;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="margin: 0; color: #333;">
+                            {{ list.emoji }} {{ list.name }}
+                            <span style="background-color: {{ list.color }}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 10px;">
+                                {{ list.total_tasks }} tasks
+                            </span>
+                        </h3>
+                        {% if list.description %}
+                        <p style="color: #666; margin: 5px 0;">{{ list.description }}</p>
+                        {% endif %}
+                        <small style="color: #888;">
+                            ✅ {{ list.completed_tasks }} completed | ⏳ {{ list.pending_tasks }} pending
+                        </small>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <a href="{{ url_for('lists.view_list_tasks', list_id=list.id) }}" 
+                           style="background-color: #007bff; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px;">
+                            📋 View Tasks
+                        </a>
+                        <a href="{{ url_for('lists.delete_list', list_id=list.id) }}" 
+                           style="background-color: #dc3545; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px;"
+                           onclick="return confirm('Delete this list and all its tasks?')">
+                            🗑️ Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; background-color: #f8f9fa; border-radius: 5px; margin-top: 20px;">
+            <h3 style="color: #666;">📝 No Lists Yet!</h3>
+            <p style="color: #888;">Create your first list to start organizing your tasks.</p>
+            <a href="{{ url_for('lists.create_list') }}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px;">
+                🆕 Create Your First List
+            </a>
+        </div>
+    {% endif %}
+    
+    <div style="margin-top: 30px; padding: 15px; background-color: #e7f3ff; border-radius: 5px; border-left: 4px solid #007bff;">
+        <p style="margin: 0; color: #0056b3;"><strong>💡 Tip:</strong> {{ quote }}</p>
+    </div>
+</div>
+{% endblock %}

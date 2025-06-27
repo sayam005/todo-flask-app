@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Sayam's toDIY App{% endblock %}
+
+{% block content %}
+<div style="text-align: center; margin: 40px 0;">
+    {% if not session.user_id %}
+        <h2>🎯 Get Your Life Organized!</h2>
+        <p style="font-size: 18px; color: #555; margin: 20px 0;">
+            This is my first Flask web application - a simple but powerful task manager.<br>
+            No fancy stuff, just solid backend functionality that works!
+        </p>
+        
+        <div style="margin: 30px 0;">
+            <p style="color: #666; margin-bottom: 20px;"><strong>What you can do:</strong></p>
+            <ul style="text-align: left; display: inline-block; color: #555;">
+                <li>� Create and manage tasks</li>
+                <li>📂 Organize tasks into custom lists</li>
+                <li>📅 Schedule tasks for specific dates</li>
+                <li>✅ Track your progress</li>
+                <li>🗑️ Delete tasks and lists when done</li>
+            </ul>
+        </div>
+        
+        <div style="margin: 30px 0;">
+            <a href="{{ url_for('auth.signup') }}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin: 10px;">
+                🚀 Sign Up & Start
+            </a>
+            <a href="{{ url_for('auth.login') }}" style="background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin: 10px;">
+                🔑 Login
+            </a>
+        </div>
+        
+        <p style="color: #888; font-size: 14px; margin-top: 40px;">
+            Built with Python Flask, SQLAlchemy, and basic HTML/CSS
+        </p>
+    {% else %}
+        <h2>👋 Hey {{ session.username }}!</h2>
+        <p style="font-size: 18px; color: #555; margin: 20px 0;">
+            Welcome back to your personal task manager!
+        </p>
+        
+        <div style="margin: 30px 0;">
+            <a href="{{ url_for('todos.dashboard') }}" style="background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin: 10px;">
+                📋 View My Tasks
+            </a>
+            <a href="{{ url_for('todos.add_todo') }}" style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin: 10px;">
+                ➕ Add New Task
+            </a>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <p style="color: #666; margin: 0;"><em>"Progress, not perfection."</em></p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

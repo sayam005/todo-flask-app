@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Todo App</title>
+    <style>
+        .success { color: green; }
+        .danger { color: red; }
+    </style>
 </head>
 <body>
     <h2>Create Your Account</h2>
@@ -12,7 +16,7 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+                <div class="{{ category }}">
                     {{ message }}
                 </div>
             {% endfor %}

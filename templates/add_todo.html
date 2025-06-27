@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Task - Sayam's toDIY App</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .success { color: green; font-weight: bold; }
+        .danger { color: red; font-weight: bold; }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 90%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        #custom-deadline-group {
+            display: none;
+        }
+        .help-text {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>🛠️ Add New DIY Task</h2>
+        
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                {{ form.title.label }}
+                {{ form.title(placeholder="e.g., Complete project report") }}
+                {% if form.title.errors %}
+                    {% for error in form.title.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.content.label }}
+                {{ form.content(placeholder="Optional description or notes") }}
+                {% if form.content.errors %}
+                    {% for error in form.content.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.category.label }}
+                {{ form.category(id="category-select") }}
+                <div class="help-text">Choose when you want to complete this task</div>
+                {% if form.category.errors %}
+                    {% for error in form.category.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group" id="custom-deadline-group">
+                {{ form.custom_deadline.label }}
+                {{ form.custom_deadline() }}
+                <div class="help-text">Set your own deadline date and time</div>
+                {% if form.custom_deadline.errors %}
+                    {% for error in form.custom_deadline.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.submit(class="submit-btn") }}
+            </div>
+        </form>
+        
+        <p><a href="{{ url_for('dashboard') }}">← Back to Dashboard</a></p>
+    </div>
+
+    <script>
+        // Show/hide custom deadline field based on category selection
+        const categorySelect = document.getElementById('category-select');
+        const customDeadlineGroup = document.getElementById('custom-deadline-group');
+        
+        function toggleCustomDeadline() {
+            if (categorySelect.value === 'custom') {
+                customDeadlineGroup.style.display = 'block';
+            } else {
+                customDeadlineGroup.style.display = 'none';
+            }
+        }
+        
+        categorySelect.addEventListener('change', toggleCustomDeadline);
+        
+        // Check initial state on page load
+        toggleCustomDeadline();
+        
+        // Set minimum date to current date/time
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        const customDeadlineInput = document.querySelector('input[type="datetime-local"]');
+        if (customDeadlineInput) {
+            customDeadlineInput.min = minDateTime;
+        }
+    </script>
+</body>
+</html>

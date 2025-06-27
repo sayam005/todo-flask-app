@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Login - My Todo App{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">🔑 Welcome Back!</h2>
+    
+    <form method="POST" style="margin-bottom: 20px;">
+        {{ form.hidden_tag() }}
+        
+        <div style="margin-bottom: 20px;">
+            {{ form.username.label(style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;") }}
+            {{ form.username(style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; box-sizing: border-box;") }}
+            {% if form.username.errors %}
+                {% for error in form.username.errors %}
+                    <span style="color: red; font-size: 14px;">{{ error }}</span><br>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            {{ form.password.label(style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;") }}
+            {{ form.password(style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; box-sizing: border-box;") }}
+            {% if form.password.errors %}
+                {% for error in form.password.errors %}
+                    <span style="color: red; font-size: 14px;">{{ error }}</span><br>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div style="text-align: center;">
+            {{ form.submit(class="btn btn-primary", style="width: 100%; font-size: 16px; padding: 12px;") }}
+        </div>
+    </form>
+    
+    <div style="text-align: center;">
+        <p><a href="{{ url_for('auth.signup') }}" style="color: #667eea;">Don't have an account? Sign up here</a></p>
+        <p><a href="{{ url_for('main.home') }}" style="color: #667eea;">Back to home</a></p>
+    </div>
+</div>
+{% endblock %}

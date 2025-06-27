@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}My Lists - Todo App{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #333; margin: 0;">📂 My Lists</h2>
+        <a href="{{ url_for('lists.create_list') }}" class="btn btn-success">+ Create New List</a>
+    </div>
+    
+    {% if lists %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            {% for list in lists %}
+                <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.3s;">
+                    <h4 style="color: #333; margin-bottom: 10px;">{{ list.name }}</h4>
+                    {% if list.description %}
+                        <p style="color: #666; margin-bottom: 15px;">{{ list.description }}</p>
+                    {% endif %}
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <small style="color: #888;">{{ list.todos|length }} tasks</small>
+                        <small style="color: #888;">{{ list.todos|length }} tasks</small>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <a href="{{ url_for('lists.view_list_tasks', list_id=list.id) }}" class="btn btn-primary" style="flex: 1; text-align: center;">View Tasks</a>
+                        <a href="{{ url_for('todos.add_todo', list_id=list.id) }}" class="btn btn-info">Add Task</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: #666; margin-bottom: 20px;">No lists yet!</h3>
+            <p style="color: #888; margin-bottom: 30px;">Create your first list to organize your tasks better.</p>
+            <a href="{{ url_for('lists.create_list') }}" class="btn btn-success" style="font-size: 16px; padding: 15px 30px;">🆕 Create Your First List</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

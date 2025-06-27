@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sayam's toDIY App{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .tagline {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin: 10px 0;
+            font-style: italic;
+        }
+        .nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav a {
+            margin: 5px 8px;
+            padding: 10px 18px;
+            text-decoration: none;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .nav a:hover {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .flash-message {
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        .danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        .btn {
+            padding: 10px 16px;
+            text-decoration: none;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            background: white;
+            color: #2c3e50;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #ecf0f1;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+        .btn-success:hover {
+            background-color: #229954;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Sayam's toDIY App</h1>
+            <p class="tagline">"Do It Yourself" - Your Personal Task Manager</p>
+            {% if session.user_id %}
+                <p style="color: #27ae60; font-weight: bold;">Welcome back, {{ session.username }}! Ready to get things done?</p>
+            {% else %}
+                <p style="color: #7f8c8d;">Organize your life, one task at a time!</p>
+            {% endif %}
+        </div>
+
+        {% if session.user_id %}
+        <div class="nav">
+            <a href="{{ url_for('todos.dashboard') }}">📋 My Tasks</a>
+            <a href="{{ url_for('lists.view_lists') }}">📂 My Lists</a>
+            <a href="{{ url_for('lists.daily_schedule') }}">📅 Today's Schedule</a>
+            <a href="{{ url_for('todos.add_todo') }}">➕ Add Task</a>
+            <a href="{{ url_for('lists.create_list') }}">🆕 Create List</a>
+        </div>
+        <div style="text-align: right; margin-bottom: 20px;">
+            <a href="{{ url_for('auth.logout') }}" style="background-color: #e67e22; color: white; padding: 8px 15px; text-decoration: none; border-radius: 3px; font-size: 14px;">
+                🚪 Logout
+            </a>
+        </div>
+        {% else %}
+        <div class="nav">
+            <a href="{{ url_for('auth.login') }}" class="btn-primary">🔑 Login</a>
+            <a href="{{ url_for('auth.signup') }}" class="btn-success">🚀 Get Started</a>
+        </div>
+        {% endif %}
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+        
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #7f8c8d;">
+            <p><em>Built with ❤️ by Sayam - My first Flask project!</em></p>
+        </div>
+    </div>
+</body>
+</html>

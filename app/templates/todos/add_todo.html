@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Add Task - toDIY Workshop{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .form-group {
+        margin-bottom: 25px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    .form-group textarea {
+        resize: vertical;
+        height: 80px;
+    }
+    .help-text {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+    }
+    .error {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    #custom-deadline-group {
+        display: none;
+    }
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 style="text-align: center; margin-bottom: 30px;">➕ Add New Task</h2>
+    
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            {{ form.title.label }}
+            {{ form.title(placeholder="e.g., Study Physics Chapter 5, Chest workout, Buy groceries") }}
+            <div class="help-text">What do you want to accomplish?</div>
+            {% if form.title.errors %}
+                {% for error in form.title.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.content.label }}
+            {{ form.content(placeholder="Optional: Add more details about this task") }}
+            <div class="help-text">Any additional notes or details</div>
+            {% if form.content.errors %}
+                {% for error in form.content.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                {{ form.list_id.label }}
+                {{ form.list_id() }}
+                <div class="help-text">Which list should this task belong to?</div>
+                {% if form.list_id.errors %}
+                    {% for error in form.list_id.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.scheduled_date.label }}
+                {{ form.scheduled_date() }}
+                <div class="help-text">When do you want to do this task?</div>
+                {% if form.scheduled_date.errors %}
+                    {% for error in form.scheduled_date.errors %}
+                        <div class="error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            {{ form.category.label }}
+            {{ form.category(id="category-select") }}
+            <div class="help-text">How long do you want to track this task?</div>
+            {% if form.category.errors %}
+                {% for error in form.category.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group" id="custom-deadline-group">
+            {{ form.custom_deadline.label }}
+            {{ form.custom_deadline() }}
+            <div class="help-text">Set your specific deadline date and time</div>
+            {% if form.custom_deadline.errors %}
+                {% for error in form.custom_deadline.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="form-group" style="text-align: center;">
+            {{ form.submit(class="btn btn-success", style="padding: 15px 40px; font-size: 16px;") }}
+        </div>
+    </form>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{{ url_for('todos.dashboard') }}" class="btn btn-info">📋 Back to Dashboard</a>
+        <a href="{{ url_for('lists.view_lists') }}" class="btn btn-primary">📂 View My Lists</a>
+    </div>
+</div>
+
+<script>
+// Show/hide custom deadline field based on category selection
+const categorySelect = document.getElementById('category-select');
+const customDeadlineGroup = document.getElementById('custom-deadline-group');
+
+function toggleCustomDeadline() {
+    if (categorySelect.value === 'custom') {
+        customDeadlineGroup.style.display = 'block';
+    } else {
+        customDeadlineGroup.style.display = 'none';
+    }
+}
+
+categorySelect.addEventListener('change', toggleCustomDeadline);
+
+// Check initial state on page load
+toggleCustomDeadline();
+
+// Set minimum date to current date/time
+const now = new Date();
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, '0');
+const day = String(now.getDate()).padStart(2, '0');
+const hours = String(now.getHours()).padStart(2, '0');
+const minutes = String(now.getMinutes()).padStart(2, '0');
+const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+const customDeadlineInput = document.querySelector('input[type="datetime-local"]');
+if (customDeadlineInput) {
+    customDeadlineInput.min = minDateTime;
+}
+
+// Set minimum date for scheduled_date to today
+const today = `${year}-${month}-${day}`;
+const scheduledDateInput = document.querySelector('input[type="date"]');
+if (scheduledDateInput) {
+    scheduledDateInput.min = today;
+}
+</script>
+{% endblock %}

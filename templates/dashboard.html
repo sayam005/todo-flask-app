@@ -2,25 +2,203 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Todo App</title>
+    <meta name="viewport" content="width=de    <h2>Welcome to Sayam's toDIY Workshop!</h2>
+    <p>Your personal DIY task manager</p>
+    <p>Welcome back, {{ username }}! | <a href="{{ url_for('logout') }}">Logout</a></p>
+    
+    <!-- Motivational Quote Section -->
+    <div class="quote-section">
+        <p class="quote-text">{{ quote }}</p>
+    </div>
+    
+    <!-- Display flash messages -->width, initial-scale=1.0">
+    <title>Dashboard - Sayam's toDIY App</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .success { color: green; font-weight: bold; }
+        .danger { color: red; font-weight: bold; }
+        .todo-item { 
+            background: white;
+            border: 2px solid #ddd; 
+            margin: 10px 0; 
+            padding: 15px; 
+            border-radius: 5px; 
+        }
+        .completed { 
+            background-color: #e8f5e8; 
+            text-decoration: line-through; 
+            border-color: #4CAF50;
+        }
+        .category { 
+            background-color: #2196F3; 
+            color: white;
+            padding: 3px 8px; 
+            border-radius: 3px; 
+            font-size: 12px; 
+        }
+        .add-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .time-info {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .overdue-time {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        .urgent-time {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        .overdue {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+        .urgent {
+            border-color: #ff9800;
+            background-color: #fff3e0;
+        }
+        .stats {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .stat-item {
+            display: inline-block;
+            margin: 5px 15px 5px 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        .stat-pending {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .stat-completed {
+            background-color: #e8f5e8;
+            color: #4CAF50;
+        }
+        .stat-overdue {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        .quote-section {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+        }
+        .quote-text {
+            font-size: 18px;
+            color: #333;
+            margin: 0;
+            font-style: italic;
+            line-height: 1.4;
+        }
+        .quote-text::before {
+            content: '"';
+            font-size: 24px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .quote-text::after {
+            content: '"';
+            font-size: 24px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <h2>Welcome to Your Dashboard!</h2>
+    <h2>Welcome to Sayam's toDIY Workshop!</h2>
+    <p>Your personal DIY task manager</p>
+    <p>Welcome back, {{ username }}! | <a href="{{ url_for('logout') }}">Logout</a></p>
     
     <!-- Display flash messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+                <div class="{{ category }}">
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
     {% endwith %}
     
-    <p>You are successfully logged in!</p>
-    <p>This is where your todos will be displayed.</p>
+    <p><a href="{{ url_for('add_todo') }}" class="add-btn">+ Add New Task</a></p>
+    
+    <!-- Task Statistics -->
+    <div class="stats">
+        <h3>Your Task Overview</h3>
+        {% set pending_count = todos|selectattr('completed', 'equalto', false)|list|length %}
+        {% set completed_count = todos|selectattr('completed', 'equalto', true)|list|length %}
+        {% set overdue_count = todos|selectattr('is_overdue', 'equalto', true)|list|length %}
+        
+        <div class="stat-item stat-pending">
+            <strong>Pending: {{ pending_count }}</strong>
+        </div>
+        <div class="stat-item stat-completed">
+            <strong>Completed: {{ completed_count }}</strong>
+        </div>
+        <div class="stat-item stat-overdue">
+            <strong>Overdue: {{ overdue_count }}</strong>
+        </div>
+    </div>
+    
+    <h3>Your Tasks:</h3>
+    {% if todos %}
+        {% for todo in todos %}
+            <div class="todo-item {% if todo.completed %}completed{% endif %} {% if todo.is_overdue and not todo.completed %}overdue{% endif %} {% if todo.is_urgent and not todo.completed %}urgent{% endif %}">
+                <h4>{{ todo.title }} {% if todo.completed %}✅{% else %}⏳{% endif %}</h4>
+                {% if todo.content %}
+                    <p>{{ todo.content }}</p>
+                {% endif %}
+                <span class="category">{{ todo.category.upper() }}</span>
+                
+                <!-- Time Information -->
+                {% if todo.time_display %}
+                    <div class="time-info {% if todo.is_overdue %}overdue-time{% endif %} {% if todo.is_urgent %}urgent-time{% endif %}">
+                        ⏰ {{ todo.time_display }}
+                    </div>
+                {% endif %}
+                
+                <small>Created: {{ todo.date_created.strftime('%Y-%m-%d %H:%M') }}</small>
+                {% if todo.deadline %}
+                    <small> | Deadline: {{ todo.deadline.strftime('%Y-%m-%d %H:%M') }}</small>
+                {% endif %}
+                <br><br>
+                <a href="{{ url_for('complete_todo', todo_id=todo.id) }}">
+                    {% if todo.completed %}Mark as Incomplete{% else %}Mark as Complete{% endif %}
+                </a> | 
+                <a href="{{ url_for('delete_todo', todo_id=todo.id) }}" 
+                   onclick="return confirm('Are you sure you want to delete this task?')"
+                   style="color: red;">Delete</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="todo-item">
+            <p>No DIY projects yet! <a href="{{ url_for('add_todo') }}">Start your first project</a></p>
+        </div>
+    {% endif %}
     
     <p><a href="{{ url_for('home') }}">Back to home</a></p>
 </body>

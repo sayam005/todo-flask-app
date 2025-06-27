@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Today's Schedule - Sayam's toDIY App{% endblock %}
+
+{% block content %}
+<div>
+    <h2>📅 Today's Schedule</h2>
+    <p style="color: #666;">Here are your tasks scheduled for {{ today.strftime('%B %d, %Y') }}</p>
+    
+    {% if tasks_by_list or unassigned_tasks %}
+        <!-- Tasks grouped by list -->
+        {% for list_name, data in tasks_by_list.items() %}
+        <div style="border: 1px solid #ddd; margin: 20px 0; border-radius: 5px; background-color: #fff;">
+            <div style="background-color: {{ data.color | safe }}; color: white; padding: 15px; border-radius: 5px 5px 0 0;">
+                <h3 style="margin: 0;">{{ list_name }}</h3>
+                <small>{{ data.tasks|length }} tasks scheduled for today</small>
+            </div>
+            
+            <div style="padding: 20px;">
+                {% for todo in data.tasks %}
+                <div style="border-bottom: 1px solid #eee; padding: 15px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="margin: 0; color: #333;">
+                                {% if todo.completed %}✅{% else %}⏳{% endif %}
+                                {{ todo.title }}
+                            </h4>
+                            {% if todo.description %}
+                            <p style="color: #666; margin: 5px 0;">{{ todo.description }}</p>
+                            {% endif %}
+                            <small style="color: #888;">
+                                Priority: {{ todo.priority.title() }} | 
+                                Category: {{ todo.category.title() }} | 
+                                {% if todo.is_overdue %}
+                                    <span style="color: #dc3545; font-weight: bold;">{{ todo.time_display }}</span>
+                                {% else %}
+                                    {{ todo.time_display }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <div>
+                            {% if not todo.completed %}
+                            <a href="{{ url_for('todos.toggle_todo', todo_id=todo.id) }}" 
+                               style="background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 12px;">
+                                ✅ Complete
+                            </a>
+                            {% else %}
+                            <span style="color: #28a745; font-weight: bold;">Completed!</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Unassigned tasks -->
+        {% if unassigned_tasks %}
+        <div style="border: 1px solid #ddd; margin: 20px 0; border-radius: 5px; background-color: #fff;">
+            <div style="background-color: #6c757d; color: white; padding: 15px; border-radius: 5px 5px 0 0;">
+                <h3 style="margin: 0;">📝 Unassigned Tasks</h3>
+                <small>{{ unassigned_tasks|length }} tasks without a specific list</small>
+            </div>
+            
+            <div style="padding: 20px;">
+                {% for todo in unassigned_tasks %}
+                <div style="border-bottom: 1px solid #eee; padding: 15px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4 style="margin: 0; color: #333;">
+                                {% if todo.completed %}✅{% else %}⏳{% endif %}
+                                {{ todo.title }}
+                            </h4>
+                            {% if todo.description %}
+                            <p style="color: #666; margin: 5px 0;">{{ todo.description }}</p>
+                            {% endif %}
+                            <small style="color: #888;">
+                                Priority: {{ todo.priority.title() }} | 
+                                Category: {{ todo.category.title() }} | 
+                                {% if todo.is_overdue %}
+                                    <span style="color: #dc3545; font-weight: bold;">{{ todo.time_display }}</span>
+                                {% else %}
+                                    {{ todo.time_display }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <div>
+                            {% if not todo.completed %}
+                            <a href="{{ url_for('todos.toggle_todo', todo_id=todo.id) }}" 
+                               style="background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 12px;">
+                                ✅ Complete
+                            </a>
+                            {% else %}
+                            <span style="color: #28a745; font-weight: bold;">Completed!</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+    {% else %}
+        <div style="text-align: center; padding: 40px; background-color: #f8f9fa; border-radius: 5px; margin-top: 20px;">
+            <h3 style="color: #666;">📅 No Tasks Scheduled for Today</h3>
+            <p style="color: #888;">Add some tasks to your schedule to get organized!</p>
+            <a href="{{ url_for('todos.add_todo') }}" style="background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px;">
+                ➕ Add Task for Today
+            </a>
+        </div>
+    {% endif %}
+    
+    <div style="margin-top: 30px; padding: 15px; background-color: #d1ecf1; border-radius: 5px; border-left: 4px solid #0c5460;">
+        <p style="margin: 0; color: #0c5460;"><strong>📚 Daily Quote:</strong> "{{ quote }}"</p>
+    </div>
+</div>
+{% endblock %}
