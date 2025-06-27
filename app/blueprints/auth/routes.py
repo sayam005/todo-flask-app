@@ -19,7 +19,7 @@ def signup():
             flash('Username already exists. Please choose a different one.', 'danger')
             return redirect(url_for('auth.signup'))
         
-        # Hash password and create user
+        # Hash password and create user (no email needed)
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         user = User(username=form.username.data, password=hashed_password)
         db.session.add(user)

@@ -120,40 +120,25 @@
             {% if session.user_id %}
                 <p style="color: #27ae60; font-weight: bold;">Welcome back, {{ session.username }}! Ready to get things done?</p>
                 
-                <!-- User Stats Display -->
-                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                    <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap;">
-                        <!-- Rank Section -->
-                        <div style="text-align: center; margin: 10px;">
-                            <div style="font-size: 1.2em; font-weight: bold; color: #2c3e50;">
-                                🏅 {{ current_user.get_or_create_stats().current_rank if current_user else 'Iron I' }}
-                            </div>
-                            <small style="color: #666;">
-                                {{ current_user.get_or_create_stats().rank_points if current_user else 0 }} points
-                            </small>
-                        </div>
-                        
-                        <!-- Tasks Section -->
-                        <div style="text-align: center; margin: 10px;">
-                            <div style="font-size: 1.1em; color: #27ae60;">
-                                ✅ {{ current_user.get_or_create_stats().total_completed_tasks if current_user else 0 }} tasks completed
-                            </div>
-                            <small style="color: #666;">
-                                {{ current_user.get_or_create_stats().total_lists_created if current_user else 0 }} lists created
-                            </small>
-                        </div>
-                        
-                        <!-- Streak Section -->
-                        <div style="text-align: center; margin: 10px;">
-                            <div style="font-size: 1.1em; color: #e74c3c;">
-                                🔥 {{ current_user.get_or_create_stats().current_streak if current_user else 0 }} day streak
-                            </div>
-                            <small style="color: #666;">
-                                Best: {{ current_user.get_or_create_stats().longest_streak if current_user else 0 }} days
-                            </small>
-                        </div>
-                    </div>
+                <!-- Dynamic Rank Display -->
+                {% if user_stats %}
+                <div style="margin: 15px 0; text-align: center;">
+                    <span style="background: #e3f2fd; padding: 8px 15px; border-radius: 20px; margin: 5px;">
+                        {{ user_stats.rank_emoji }} Rank: <strong>{{ user_stats.rank_name }}</strong>
+                    </span>
+                    <span style="background: #f3e5f5; padding: 8px 15px; border-radius: 20px; margin: 5px;">
+                        ✅ Completed: <strong>{{ user_stats.completed_tasks }}</strong>
+                    </span>
+                    <span style="background: #fff3e0; padding: 8px 15px; border-radius: 20px; margin: 5px;">
+                        📋 Total Tasks: <strong>{{ user_stats.total_tasks }}</strong>
+                    </span>
+                    {% if user_stats.total_tasks > 0 %}
+                    <span style="background: #e8f5e8; padding: 8px 15px; border-radius: 20px; margin: 5px;">
+                        📊 Progress: <strong>{{ user_stats.completion_rate }}%</strong>
+                    </span>
+                    {% endif %}
                 </div>
+                {% endif %}
             {% else %}
                 <p style="color: #7f8c8d;">Organize your life, one task at a time!</p>
             {% endif %}
@@ -164,7 +149,6 @@
             <a href="{{ url_for('todos.dashboard') }}">📋 My Tasks</a>
             <a href="{{ url_for('lists.view_lists') }}">📂 My Lists</a>
             <a href="{{ url_for('lists.daily_schedule') }}">📅 Today's Schedule</a>
-            <a href="{{ url_for('achievements.view_achievements') }}">🏆 Achievements</a>
             <a href="{{ url_for('todos.add_todo') }}">➕ Add Task</a>
             <a href="{{ url_for('lists.create_list') }}">🆕 Create List</a>
         </div>

@@ -70,24 +70,9 @@ def create_list():
             user_id=session['user_id']
         )
         db.session.add(task_list)
-        
-        # Update user stats for list creation
-        from app.models import User
-        from app.blueprints.achievements.services import AchievementService
-        
-        user = User.query.get(session['user_id'])
-        stats = user.get_or_create_stats()
-        stats.total_lists_created += 1
-        
         db.session.commit()
         
-        # Check for new achievements
-        new_achievements = AchievementService.check_and_award_achievements(user.id, category='list')
-        
         flash(f'List "{form.emoji.data} {form.name.data}" created successfully!', 'success')
-        
-        for achievement in new_achievements:
-            flash(f'🏆 Achievement Unlocked: {achievement.emoji} {achievement.name}!', 'success')
         return redirect(url_for('lists.view_lists'))
     
     return render_template('lists/create_list.html', form=form)
