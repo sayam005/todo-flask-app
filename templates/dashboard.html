@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Todo App</title>
+</head>
+<body>
+    <h2>Welcome to Your Dashboard!</h2>
+    
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <p>You are successfully logged in!</p>
+    <p>This is where your todos will be displayed.</p>
+    
+    <p><a href="{{ url_for('home') }}">Back to home</a></p>
+</body>
+</html>
